@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de Productos</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    {% include 'includes/navbar.html' %}
+
+    <div class="container">
+        <h1 style="text-align: center;">Inventario de Productos</h1>
+
+        <div class="card-grid">
+            {% for product in products %}
+            <div class="card">
+                <img src="/{{ product.image_path }}" alt="{{ product.name }}" class="card-image">
+                <div class="card-content">
+                    <h3>{{ product.name }}</h3>
+                    <p class="code">Código: {{ product.code }}</p>
+                    <p><strong>Precio:</strong> ${{ "%.2f"|format(product.price) }}</p>
+                    <p><strong>Stock:</strong> {{ product.stock }} unidades</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/products/{{ product.id }}/edit" class="btn btn-info">Editar</a>
+                    <form action="/products/{{ product.id }}/delete" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?');">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
+

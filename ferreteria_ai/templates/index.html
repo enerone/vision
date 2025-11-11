@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identificador de Piezas AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Estilos específicos para esta página */
+        .identifier-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            background-color: #000; /* Fondo oscuro por si el video no carga */
+        }
+        video, #frozen-frame {
+            width: 100%;
+            display: block;
+        }
+        #frozen-frame {
+            display: none; /* Oculto por defecto */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .guide-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            border: 3px dashed #33ff00;
+            box-shadow: 0 0 15px rgba(51, 255, 0, 0.5);
+            border-radius: 8px;
+            pointer-events: none; /* Para que no interfiera con el clic */
+        }
+        #result-container {
+            width: 100%;
+            max-width: 600px;
+            min-height: 100px;
+            padding: 1rem;
+        }
+        #spinner {
+            display: none;
+            margin-top: 1rem;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #shopping-list-container {
+            margin-top: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 1rem;
+            background-color: var(--card-bg);
+        }
+        .shopping-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .shopping-list-item:last-child {
+            border-bottom: none;
+        }
+        .shopping-list-item .item-details {
+            font-weight: 500;
+        }
+        .shopping-list-item .item-details .code {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            display: block;
+        }
+        .shopping-list-item .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .shopping-list-item .item-quantity {
+            font-weight: 600;
+        }
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+        }
+        .shopping-list-item .item-price {
+            min-width: 100px;
+            text-align: right;
+        }
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.25rem;
+        }
+        #grand-total-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--text-color);
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'includes/navbar.html' %}
+
+    <div class="container identifier-container">
+        <h1>Identificador de Piezas con IA</h1>
+        <div id="video-container">
+            <video id="video" autoplay playsinline></video>
+            <img id="frozen-frame" src="" alt="Frame capturado">
+            <div class="guide-box"></div>
+        </div>
+        <button id="capture-btn" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem;">Identificar Pieza</button>
+        
+        <div id="spinner"></div>
+
+        <div id="result-container">
+            <!-- El resultado se insertará aquí dinámicamente -->
+        </div>
+
+        <div id="shopping-list-section" style="width: 100%; max-width: 600px; margin-top: 2rem; display: none;">
+            <hr>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Lista de Compras</h2>
+                <button id="clear-list-btn" class="btn btn-danger">Limpiar Lista</button>
+            </div>
+            <div id="shopping-list-container">
+                <!-- La lista de compras se insertará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas oculto para capturar el frame -->
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
+

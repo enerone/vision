@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir Nuevo Producto</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    {% include 'includes/navbar.html' %}
+
+    <div class="form-container">
+        <h1 style="text-align: center;">Añadir Nuevo Producto</h1>
+        <form action="/products" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Nombre del Producto</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="code">Código (SKU)</label>
+                <input type="text" id="code" name="code" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descripción</label>
+                <textarea id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="stock">Stock (Cantidad)</label>
+                <input type="number" id="stock" name="stock" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Precio</label>
+                <input type="number" id="price" name="price" step="0.01" value="0.00" required>
+            </div>
+            <div class="form-group">
+                <label for="image">Foto del Producto</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%;">Guardar Producto</button>
+        </form>
+    </div>
+
+</body>
+</html>
+

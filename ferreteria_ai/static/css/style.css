@@ -1,0 +1,200 @@
+/* --- Importar Fuente --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* --- Variables de Color --- */
+:root {
+    --primary-bg: #f4f7f9;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --text-light: #666;
+    --border-color: #e0e0e0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
+    --success-color: #28a745;
+    --success-hover: #218838;
+    --info-color: #17a2b8;
+    --info-hover: #138496;
+}
+
+/* --- Estilos Generales --- */
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding-top: 80px; /* Espacio para la barra de navegación fija */
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+/* --- Barra de Navegación --- */
+.navbar {
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar .nav-links a {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text-light);
+    transition: color 0.2s;
+}
+
+.navbar .nav-links a:hover, .navbar .nav-links a.active {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* --- Botones --- */
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.btn-primary { background-color: var(--accent-color); }
+.btn-primary:hover { background-color: var(--accent-hover); }
+
+.btn-danger { background-color: var(--danger-color); }
+.btn-danger:hover { background-color: var(--danger-hover); }
+
+.btn-success { background-color: var(--success-color); }
+.btn-success:hover { background-color: var(--success-hover); }
+
+.btn-info { background-color: var(--info-color); }
+.btn-info:hover { background-color: var(--info-hover); }
+
+
+/* --- Formularios --- */
+.form-container {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-group input[type="file"] {
+    padding: 0.5rem;
+}
+
+.form-group small {
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* --- Tarjetas (para la lista de productos y resultados) --- */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1rem;
+    flex-grow: 1;
+}
+
+.card-content h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.card-content .code {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.card-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
