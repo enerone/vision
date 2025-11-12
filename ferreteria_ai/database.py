@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 # 1. Definimos la URL de la base de datos.
 # "sqlite:///./inventory.db" significa que usará un archivo llamado inventory.db
 # en el mismo directorio.
-SQLALCHEMY_DATABASE_URL = "sqlite:///./inventory.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./ferreteria_ai/inventory.db"
 
 # 2. Creamos el "motor" de SQLAlchemy.
 # El argumento connect_args es necesario solo para SQLite para permitir

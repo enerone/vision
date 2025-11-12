@@ -198,3 +198,39 @@ a:hover {
     gap: 0.5rem;
     justify-content: flex-end;
 }
+
+/* --- Estilos para la captura de cámara en formularios --- */
+.choice-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.choice-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .navbar .nav-links {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .form-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}

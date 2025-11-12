@@ -12,12 +12,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
-import models
-from database import SessionLocal, engine, create_db_and_tables
+from . import models
+from .database import SessionLocal, engine, create_db_and_tables
 
 # --- Configuración ---
 OLLAMA_MODEL = "qwen3-vl"
-UPLOADS_DIR = Path("static/uploads")
+UPLOADS_DIR = Path("ferreteria_ai/static/uploads")
 
 # --- Inicialización de la App ---
 app = FastAPI()
@@ -30,8 +30,8 @@ def on_startup():
     UPLOADS_DIR.mkdir(exist_ok=True)
 
 # Montar directorios estáticos
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="ferreteria_ai/static"), name="static")
+templates = Jinja2Templates(directory="ferreteria_ai/templates")
 
 # --- Dependencias ---
 def get_db():
@@ -119,6 +119,9 @@ async def create_product(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error durante el proceso de embedding: {e}")
 
+    # Crear la ruta relativa para servir la imagen (sin el prefijo ferreteria_ai/)
+    relative_image_path = f"static/uploads/{image.filename}"
+
     # Crear la nueva instancia del producto
     new_product = models.Product(
         name=name,
@@ -126,7 +129,7 @@ async def create_product(
         description=description,
         stock=stock,
         price=price,
-        image_path=str(image_path),
+        image_path=relative_image_path,
         embedding=embedding
     )
 
@@ -203,16 +206,18 @@ async def update_product(
 
     # Si se subió una nueva imagen, procesarla
     if image and image.filename:
-        # Borrar la imagen antigua si existe
-        if os.path.exists(product.image_path):
-            os.remove(product.image_path)
+        # Borrar la imagen antigua si existe (construir ruta completa)
+        old_image_full_path = Path("ferreteria_ai") / product.image_path
+        if old_image_full_path.exists():
+            os.remove(old_image_full_path)
 
         # Guardar la nueva imagen
         image_path = UPLOADS_DIR / image.filename
         with image_path.open("wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
-        
-        product.image_path = str(image_path)
+
+        # Guardar ruta relativa
+        product.image_path = f"static/uploads/{image.filename}"
 
         # Recalcular el embedding, ya que la imagen ha cambiado
         try:
@@ -220,13 +225,13 @@ async def update_product(
             vision_prompt = "Describe este objeto de ferretería en una frase corta y técnica."
             description_response = ollama.generate(model=OLLAMA_MODEL, prompt=vision_prompt, images=[image_bytes])
             image_description = description_response.get('response', '').strip()
-            
+
             embedding_response = ollama.embeddings(model='nomic-embed-text', prompt=image_description)
             embedding = embedding_response.get("embedding")
-            
+
             if not embedding:
                 raise HTTPException(status_code=500, detail="No se pudo recalcular el embedding para la nueva imagen.")
-            
+
             product.embedding = embedding
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error durante el proceso de embedding: {e}")

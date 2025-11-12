@@ -5,6 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Añadir Nuevo Producto</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .image-input-section {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: #fafafa;
+        }
+
+        .image-source-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            border-color: var(--accent-color);
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            border-color: var(--accent-color);
+        }
+
+        .camera-container {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .camera-container.active {
+            display: block;
+        }
+
+        #camera-video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            background: #000;
+            display: block;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .image-preview {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .image-preview.active {
+            display: block;
+        }
+
+        .image-preview img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .file-input-container {
+            display: none;
+        }
+
+        .file-input-container.active {
+            display: block;
+            margin-top: 1rem;
+        }
+
+        .image-status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .image-status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .image-status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,7 +124,7 @@
 
     <div class="form-container">
         <h1 style="text-align: center;">Añadir Nuevo Producto</h1>
-        <form action="/products" method="post" enctype="multipart/form-data">
+        <form id="product-form" action="/products" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="name">Nombre del Producto</label>
                 <input type="text" id="name" name="name" required>
@@ -33,14 +145,64 @@
                 <label for="price">Precio</label>
                 <input type="number" id="price" name="price" step="0.01" value="0.00" required>
             </div>
+
+            <!-- Nueva sección de imagen con cámara -->
             <div class="form-group">
-                <label for="image">Foto del Producto</label>
-                <input type="file" id="image" name="image" accept="image/*" required>
+                <label>Foto del Producto</label>
+                <div class="image-input-section">
+                    <div class="image-source-toggle">
+                        <button type="button" class="toggle-btn active" id="toggle-camera">
+                            📷 Tomar Foto
+                        </button>
+                        <button type="button" class="toggle-btn" id="toggle-file">
+                            📁 Subir Archivo
+                        </button>
+                    </div>
+
+                    <!-- Contenedor de la cámara -->
+                    <div class="camera-container active" id="camera-container">
+                        <video id="camera-video" autoplay playsinline></video>
+                        <div class="camera-controls">
+                            <button type="button" class="btn btn-primary" id="start-camera-btn">
+                                Activar Cámara
+                            </button>
+                            <button type="button" class="btn btn-success" id="capture-photo-btn" style="display: none;">
+                                📸 Capturar Foto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de subida de archivo -->
+                    <div class="file-input-container" id="file-input-container">
+                        <input type="file" id="image-file" name="image" accept="image/*">
+                    </div>
+
+                    <!-- Preview de la imagen -->
+                    <div class="image-preview" id="image-preview">
+                        <img id="preview-img" src="" alt="Vista previa">
+                        <div class="preview-actions">
+                            <button type="button" class="btn btn-danger" id="remove-image-btn">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado de la imagen -->
+                    <div id="image-status"></div>
+                </div>
+
+                <!-- Input oculto para la imagen capturada -->
+                <input type="file" id="image" name="image" style="display: none;">
             </div>
+
             <button type="submit" class="btn btn-success" style="width: 100%;">Guardar Producto</button>
         </form>
     </div>
 
+    <!-- Canvas oculto para capturar frames -->
+    <canvas id="capture-canvas" style="display: none;"></canvas>
+
+    <script src="/static/js/add_product.js"></script>
 </body>
 </html>
 
