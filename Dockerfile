@@ -10,4 +10,4 @@ COPY ferreteria_ai/ .
 
 EXPOSE 5000
 
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
