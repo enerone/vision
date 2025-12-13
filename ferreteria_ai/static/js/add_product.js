@@ -193,6 +193,7 @@ productForm.addEventListener('submit', async (e) => {
     const formData = new FormData();
     formData.append('name', document.getElementById('name').value);
     formData.append('code', document.getElementById('code').value);
+    formData.append('category', document.getElementById('category').value);
     formData.append('description', document.getElementById('description').value);
     formData.append('stock', document.getElementById('stock').value);
     formData.append('price', document.getElementById('price').value);
@@ -235,4 +236,146 @@ productForm.addEventListener('submit', async (e) => {
 window.addEventListener('beforeunload', () => {
     stopCamera();
 });
+
+// --- Importación masiva desde Excel ---
+const toggleImportBtn = document.getElementById('toggle-import-btn');
+const importSection = document.getElementById('import-section');
+const importForm = document.getElementById('import-form');
+const importResult = document.getElementById('import-result');
+
+// Toggle de la sección de importación
+toggleImportBtn.addEventListener('click', () => {
+    if (importSection.style.display === 'none' || importSection.style.display === '') {
+        importSection.classList.add('active');
+        toggleImportBtn.innerHTML = '<span style="font-size: 1.5rem;">❌</span><span>Cerrar Importación</span>';
+    } else {
+        importSection.classList.remove('active');
+        toggleImportBtn.innerHTML = '<span style="font-size: 1.5rem;">📊</span><span>Importación Masiva</span>';
+        importResult.innerHTML = '';
+    }
+});
+
+// Mostrar nombre del archivo seleccionado
+const excelFileInput = document.getElementById('excel-file');
+excelFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        console.log('Archivo Excel seleccionado:', file.name, file.size);
+        const wrapper = excelFileInput.closest('.file-input-wrapper');
+        const uploadIcon = wrapper.querySelector('.upload-icon');
+        const firstP = wrapper.querySelector('p:first-of-type');
+
+        uploadIcon.textContent = '✅';
+        firstP.innerHTML = `<strong style="color: #28a745;">Archivo seleccionado: ${file.name}</strong>`;
+    }
+});
+
+// Manejar envío del formulario de importación
+importForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById('excel-file');
+    const file = fileInput.files[0];
+
+    console.log('Submit del formulario de importación');
+    console.log('FileInput:', fileInput);
+    console.log('Archivo seleccionado:', file);
+
+    if (!file) {
+        showImportResult('Por favor selecciona un archivo Excel', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('excel_file', file);
+
+    console.log('FormData creado, archivo agregado:', file.name);
+
+    // Mostrar loading
+    showImportResult('Procesando archivo...', 'loading');
+
+    try {
+        const response = await fetch('/products/import', {
+            method: 'POST',
+            body: formData
+        });
+
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+
+        let data;
+        try {
+            data = await response.json();
+            console.log('Data recibida:', data);
+        } catch (jsonError) {
+            console.error('Error al parsear JSON:', jsonError);
+            showImportResult('Error: La respuesta del servidor no es válida', 'error');
+            return;
+        }
+
+        if (response.ok && data.success) {
+            let message = `
+                <div style="color: green; font-weight: bold;">
+                    ✓ Importación completada
+                </div>
+                <p>Productos importados: <strong>${data.imported}</strong></p>
+                <p>Productos omitidos: <strong>${data.skipped}</strong></p>
+            `;
+
+            if (data.errors && data.errors.length > 0) {
+                message += `
+                    <details style="margin-top: 1rem;">
+                        <summary style="cursor: pointer; color: var(--danger-color);">
+                            Ver errores (${data.errors.length})
+                        </summary>
+                        <ul style="margin-top: 0.5rem; font-size: 0.9rem;">
+                            ${data.errors.map(err => `<li>${err}</li>`).join('')}
+                        </ul>
+                    </details>
+                `;
+            }
+
+            message += `
+                <p style="margin-top: 1rem;">
+                    <a href="/products" class="btn btn-primary">Ver productos importados</a>
+                </p>
+            `;
+
+            showImportResult(message, 'success');
+            fileInput.value = '';
+        } else {
+            // Mostrar el mensaje de error detallado del servidor
+            const errorMsg = data.error || data.detail || 'Error desconocido';
+            showImportResult(`<strong>Error:</strong> ${errorMsg}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error al importar:', error);
+        showImportResult(`Error de conexión: ${error.message}`, 'error');
+    }
+});
+
+function showImportResult(message, type) {
+    const colors = {
+        'success': '#d4edda',
+        'error': '#f8d7da',
+        'loading': '#fff3cd'
+    };
+
+    const textColors = {
+        'success': '#155724',
+        'error': '#721c24',
+        'loading': '#856404'
+    };
+
+    importResult.innerHTML = `
+        <div style="
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: ${colors[type] || colors['loading']};
+            color: ${textColors[type] || textColors['loading']};
+            border: 1px solid ${textColors[type] || textColors['loading']};
+        ">
+            ${message}
+        </div>
+    `;
+}
 
