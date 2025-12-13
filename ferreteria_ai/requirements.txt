@@ -6,3 +6,5 @@ requests
 sqlalchemy
 numpy
 ollama
+pandas
+openpyxl

@@ -18,6 +18,9 @@ class Product(Base):
     # Código de producto o SKU. Debe ser único.
     code = Column(String, unique=True, index=True, nullable=False)
 
+    # Categoría del producto
+    category = Column(String, index=True, nullable=False, default="Otros")
+
     # Descripción más detallada del producto
     description = Column(Text, nullable=True)
 

@@ -5,35 +5,657 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Productos</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .inventory-header {
+            background: var(--gradient-primary);
+            padding: 3rem 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 0 0 30px 30px;
+            box-shadow: var(--shadow-lg);
+            color: white;
+            text-align: center;
+        }
+
+        .inventory-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .inventory-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-filters {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .filters-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn .emoji {
+            font-size: 1.2rem;
+        }
+
+        .category-section {
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .category-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .category-count {
+            background-color: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* 4:3 Aspect Ratio */
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        }
+
+        .card-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.1);
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stock-badge.low {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .stock-badge.medium {
+            background: linear-gradient(135deg, #ffd93d 0%, #ffb144 100%);
+            color: #333;
+        }
+
+        .stock-badge.high {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            color: white;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .card-content h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1.4;
+        }
+
+        .code {
+            display: inline-block;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #4b5563;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .price-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-radius: 12px;
+            margin-top: auto;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-success);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-info {
+            background: var(--gradient-info);
+            border: none;
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border: none;
+            color: white;
+        }
+
+        .no-products {
+            background: white;
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .no-products-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-products h2 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .no-products p {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
 </head>
 <body>
 
     {% include 'includes/navbar.html' %}
 
-    <div class="container">
-        <h1 style="text-align: center;">Inventario de Productos</h1>
+    <div class="container" style="padding-top: 2rem;">
 
-        <div class="card-grid">
-            {% for product in products %}
-            <div class="card">
-                <img src="/{{ product.image_path }}" alt="{{ product.name }}" class="card-image">
-                <div class="card-content">
-                    <h3>{{ product.name }}</h3>
-                    <p class="code">Código: {{ product.code }}</p>
-                    <p><strong>Precio:</strong> ${{ "%.2f"|format(product.price) }}</p>
-                    <p><strong>Stock:</strong> {{ product.stock }} unidades</p>
-                </div>
-                <div class="card-footer">
-                    <a href="/products/{{ product.id }}/edit" class="btn btn-info">Editar</a>
-                    <form action="/products/{{ product.id }}/delete" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?');">Eliminar</button>
-                    </form>
-                </div>
+        <!-- Header -->
+        <div class="inventory-header">
+            <h1>🏪 Inventario de Productos</h1>
+            <p>Gestiona y organiza tu ferretería de manera eficiente</p>
+        </div>
+
+        <!-- Buscador -->
+        <div class="search-bar">
+            <span style="font-size: 1.5rem;">🔍</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Buscar productos por nombre o código...">
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-number" id="total-products">{{ products|length }}</div>
+                <div class="stat-label">Total Productos</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-number" id="total-categories">-</div>
+                <div class="stat-label">Categorías</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-number" id="visible-products">{{ products|length }}</div>
+                <div class="stat-label">Mostrando</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-number" id="total-value">$0</div>
+                <div class="stat-label">Valor Total</div>
+            </div>
+        </div>
+
+        <!-- Filtros por categoría -->
+        <div class="category-filters">
+            <div class="filters-header">
+                <span>🎯</span>
+                Filtrar por Categoría
+            </div>
+            <div class="filters-grid">
+                <button class="filter-btn active" data-category="all">
+                    <span class="emoji">📦</span>
+                    <span>Todas</span>
+                </button>
+                <button class="filter-btn" data-category="Herramientas">
+                    <span class="emoji">🔧</span>
+                    <span>Herramientas</span>
+                </button>
+                <button class="filter-btn" data-category="Herramientas Eléctricas">
+                    <span class="emoji">⚡</span>
+                    <span>H. Eléctricas</span>
+                </button>
+                <button class="filter-btn" data-category="Fijaciones">
+                    <span class="emoji">🔩</span>
+                    <span>Fijaciones</span>
+                </button>
+                <button class="filter-btn" data-category="Abrasivos">
+                    <span class="emoji">⚙️</span>
+                    <span>Abrasivos</span>
+                </button>
+                <button class="filter-btn" data-category="Electricidad">
+                    <span class="emoji">💡</span>
+                    <span>Electricidad</span>
+                </button>
+                <button class="filter-btn" data-category="Plomería">
+                    <span class="emoji">🚰</span>
+                    <span>Plomería</span>
+                </button>
+                <button class="filter-btn" data-category="Pinturería">
+                    <span class="emoji">🎨</span>
+                    <span>Pinturería</span>
+                </button>
+                <button class="filter-btn" data-category="Seguridad">
+                    <span class="emoji">🦺</span>
+                    <span>Seguridad</span>
+                </button>
+                <button class="filter-btn" data-category="Otros">
+                    <span class="emoji">📋</span>
+                    <span>Otros</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Productos agrupados por categoría -->
+        <div id="products-container">
+            {% set categories_dict = {} %}
+            {% for product in products %}
+                {% set category = product.category or 'Otros' %}
+                {% if category not in categories_dict %}
+                    {% set _ = categories_dict.update({category: []}) %}
+                {% endif %}
+                {% set _ = categories_dict[category].append(product) %}
             {% endfor %}
+
+            {% if products|length == 0 %}
+                <div class="no-products">
+                    <div class="no-products-icon">📭</div>
+                    <h2>No hay productos en el inventario</h2>
+                    <p>Comienza agregando tu primer producto para empezar a gestionar tu ferretería</p>
+                    <a href="/products/new" class="btn btn-primary" style="display: inline-block; padding: 1rem 2rem; font-size: 1.1rem;">
+                        ➕ Agregar Primer Producto
+                    </a>
+                </div>
+            {% else %}
+                {% set category_icons = {
+                    'Herramientas': '🔧',
+                    'Herramientas Eléctricas': '⚡',
+                    'Fijaciones': '🔩',
+                    'Abrasivos': '⚙️',
+                    'Electricidad': '💡',
+                    'Plomería': '🚰',
+                    'Pinturería': '🎨',
+                    'Seguridad': '🦺',
+                    'Otros': '📋'
+                } %}
+                {% for category, category_products in categories_dict.items()|sort %}
+                    <div class="category-section" data-category="{{ category }}">
+                        <div class="category-header">
+                            <h2>
+                                <span>{{ category_icons.get(category, '📦') }}</span>
+                                {{ category }}
+                            </h2>
+                            <span class="category-count">{{ category_products|length }} producto{% if category_products|length != 1 %}s{% endif %}</span>
+                        </div>
+                        <div class="card-grid">
+                            {% for product in category_products %}
+                            <div class="card" data-name="{{ product.name|lower }}" data-code="{{ product.code|lower }}">
+                                <div class="card-image-container">
+                                    <img src="/{{ product.image_path }}" alt="{{ product.name }}" class="card-image">
+                                    {% set stock = product.stock %}
+                                    {% if stock == 0 %}
+                                        <div class="stock-badge low">Sin Stock</div>
+                                    {% elif stock < 10 %}
+                                        <div class="stock-badge low">{{ stock }} unidades</div>
+                                    {% elif stock < 50 %}
+                                        <div class="stock-badge medium">{{ stock }} unidades</div>
+                                    {% else %}
+                                        <div class="stock-badge high">{{ stock }} unidades</div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-content">
+                                    <h3>{{ product.name }}</h3>
+                                    <span class="code">{{ product.code }}</span>
+                                    {% if product.description %}
+                                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">{{ product.description[:80] }}{% if product.description|length > 80 %}...{% endif %}</p>
+                                    {% endif %}
+                                    <div class="price-info">
+                                        <div>
+                                            <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Precio</div>
+                                            <div class="price">${{ "%.2f"|format(product.price) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="/products/{{ product.id }}/edit" class="btn btn-info">✏️ Editar</a>
+                                    <form action="/products/{{ product.id }}/delete" method="post" style="flex: 1;">
+                                        <button type="submit" class="btn btn-danger" style="width: 100%;" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?');">🗑️ Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
 
+    <script>
+        // Calcular valor total del inventario
+        const products = {{ products|tojson }};
+        const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+        document.getElementById('total-value').textContent = '$' + totalValue.toFixed(2);
+
+        // Filtrado por categoría
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const categorySections = document.querySelectorAll('.category-section');
+        const visibleProductsCounter = document.getElementById('visible-products');
+        const totalCategoriesCounter = document.getElementById('total-categories');
+
+        // Calcular categorías únicas
+        const uniqueCategories = new Set();
+        categorySections.forEach(section => {
+            uniqueCategories.add(section.dataset.category);
+        });
+        totalCategoriesCounter.textContent = uniqueCategories.size;
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const selectedCategory = button.dataset.category;
+
+                // Actualizar botones activos
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Filtrar secciones
+                let visibleCount = 0;
+                categorySections.forEach(section => {
+                    if (selectedCategory === 'all' || section.dataset.category === selectedCategory) {
+                        section.style.display = 'block';
+                        const productsInSection = section.querySelectorAll('.card').length;
+                        visibleCount += productsInSection;
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+
+                visibleProductsCounter.textContent = visibleCount;
+            });
+        });
+
+        // Búsqueda de productos
+        const searchInput = document.getElementById('search-input');
+        const allCards = document.querySelectorAll('.card');
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleCount = 0;
+
+            allCards.forEach(card => {
+                const name = card.dataset.name;
+                const code = card.dataset.code;
+
+                if (name.includes(searchTerm) || code.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Ocultar secciones vacías
+            categorySections.forEach(section => {
+                const visibleCardsInSection = Array.from(section.querySelectorAll('.card'))
+                    .filter(card => card.style.display !== 'none').length;
+
+                section.style.display = visibleCardsInSection > 0 ? 'block' : 'none';
+            });
+
+            visibleProductsCounter.textContent = visibleCount;
+        });
+    </script>
+
 </body>
 </html>
-
